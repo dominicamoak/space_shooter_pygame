@@ -32,7 +32,7 @@ class Player(pygame.sprite.Sprite):
         
         recent_keys = pygame.key.get_just_pressed()
         if recent_keys[pygame.K_SPACE] and self.can_shoot:
-            laser = Laser(all_sprites, laser_surf, self.rect.midtop)
+            laser = Laser((all_sprites, laser_sprites), laser_surf, self.rect.midtop)
             self.can_shoot = False
             self.laser_shoot_time = pygame.time.get_ticks()
         
@@ -59,7 +59,6 @@ class Laser(pygame.sprite.Sprite):
         if self.rect.bottom < 0:
             self.kill()
 
-
 class Meteor(pygame.sprite.Sprite):
     def __init__(self, groups, surf, pos):
         super().__init__(groups)
@@ -75,6 +74,17 @@ class Meteor(pygame.sprite.Sprite):
         if pygame.time.get_ticks() - self.start_time >= self.lifetime:
             self.kill()
 
+def collisions():
+    global running
+    
+    collision_sprites = pygame.sprite.spritecollide(player, meteor_sprites, dokill= True)
+    if collision_sprites:
+        running = False
+    
+    for laser in laser_sprites:
+        collided_sprites = pygame.sprite.spritecollide(laser, meteor_sprites, dokill= True)
+        if collided_sprites:
+            laser.kill()
 
 # GENERAL SETUP
 pygame.init()
@@ -94,6 +104,8 @@ meteor_surf = pygame.image.load(join('images', 'meteor.png')).convert_alpha()
 
 # Sprite Instances
 all_sprites = pygame.sprite.Group()
+meteor_sprites = pygame.sprite.Group()
+laser_sprites = pygame.sprite.Group()
 for i in range(20):
     Star(all_sprites, star_surf)
 player = Player(all_sprites)
@@ -115,11 +127,13 @@ while running:
             running = False
         if event.type == meteor_event:
             x, y = random.randint(0, window_width), random.randint(-200, -100)
-            Meteor(all_sprites, meteor_surf, (x, y))
+            Meteor((all_sprites, meteor_sprites), meteor_surf, (x, y))
     
+    # Updates
     all_sprites.update(dt)
+    collisions()
     
-    #Draw Game
+    # Draw Game
     display_surface.fill('#391142')
     
     all_sprites.draw(display_surface)
