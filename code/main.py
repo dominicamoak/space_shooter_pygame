@@ -66,17 +66,26 @@ class Laser(pygame.sprite.Sprite):
 class Meteor(pygame.sprite.Sprite):
     def __init__(self, groups, surf, pos):
         super().__init__(groups)
-        self.image = surf
+        self.original_surf = surf
+        self.image = self.original_surf
         self.rect = self.image.get_frect(center = pos)
         self.start_time = pygame.time.get_ticks()
         self.lifetime = 3500
         self.direction = pygame.Vector2(random.uniform(-0.4, 0.4), 1)
         self.speed = random.randint(250, 400)
+        
+        # Transform
+        self.rotation = 0
+        self.rotation_speed = random.randint(10, 25)
     
     def update(self, dt):
         self.rect.center += self.direction * self.speed * dt
         if pygame.time.get_ticks() - self.start_time >= self.lifetime:
             self.kill()
+            
+        self.rotation += self.rotation_speed * dt
+        self.image = pygame.transform.rotozoom(self.original_surf, self.rotation, 1)
+        self.rect = self.image.get_frect(center = self.rect.center)
 
 def collisions():
     global running
