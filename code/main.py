@@ -172,12 +172,12 @@ def init_game():
 def reset_game():
     init_game()
 
-def game_sound():
+def game_sound(new_state):
     global game_state, game_music
     
-    if game_state == 'playing':
+    if new_state == 'playing':
         game_music.set_volume(0.2)
-    if game_state == 'game_over':
+    if new_state == 'game_over':
         game_music.set_volume(0.02)
 
 
@@ -233,7 +233,7 @@ while running:
     events = pygame.event.get()
     
     if game_state != previous_state:
-        game_sound()
+        game_sound(game_state)
         previous_state = game_state
     
     if game_state == 'playing':
