@@ -105,6 +105,7 @@ class Explosions(pygame.sprite.Sprite):
 
 def collisions():
     global running
+    global score
     
     collision_sprites = pygame.sprite.spritecollide(player, meteor_sprites, True, pygame.sprite.collide_mask)
     if collision_sprites:
@@ -113,14 +114,15 @@ def collisions():
     for laser in laser_sprites:
         collided_sprites = pygame.sprite.spritecollide(laser, meteor_sprites, True, pygame.sprite.collide_mask)
         if collided_sprites:
+            score += 10
             laser.kill()
             Explosions(all_sprites, explosion_frames, laser.rect.midtop)
             explosion_sound.play()
 
-def display_score():
-    current_time = pygame.time.get_ticks() // 100
-    text_surf = font.render(str(current_time), True, '#e4e7ed')
-    text_rect = text_surf.get_frect(midbottom = ((window_width / 2, window_height - 80)))
+def display_score(score):
+    # current_time = pygame.time.get_ticks() // 100
+    text_surf = font.render(str(score), True, '#e4e7ed')
+    text_rect = text_surf.get_frect(midbottom = ((window_width - 75, window_height - 650)))
     display_surface.blit(text_surf, text_rect)
 
     pygame.draw.rect(display_surface, '#e4e7ed', text_rect.inflate(30, 30).move(0, -8), 5, 10)
@@ -134,6 +136,7 @@ pygame.display.set_caption('SPACE SHOOTER')
 
 running = True
 clock = pygame.time.Clock()
+score = 0
 
 # Surface Creations / Imports
 star_surf = pygame.image.load(join('images', 'star.png')).convert_alpha()
@@ -187,7 +190,7 @@ while running:
     
     # Draw Game
     display_surface.fill('#391142')    
-    display_score()
+    display_score(score)
     all_sprites.draw(display_surface)
     
     pygame.display.update()
