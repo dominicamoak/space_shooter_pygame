@@ -285,12 +285,7 @@ while running:
         display_score(score)
         all_sprites.draw(display_surface)
     
-    elif game_state == 'game_over':
-        # draw score to screen
-        # show play again and Exit text to player
-        # when played again, reset everything and game_state = playing
-        # when exit, running = false
-        
+    elif game_state == 'game_over':        
         # Draw Game
         display_surface.fill('#391142')
         display_final_score(score)
