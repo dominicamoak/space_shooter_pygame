@@ -104,10 +104,7 @@ class Explosions(pygame.sprite.Sprite):
             self.kill()
 
 def collisions():
-    global running
-    global score
-    global game_state
-    global final_score
+    global running, game_state, score, final_score
     
     collision_sprites = pygame.sprite.spritecollide(player, meteor_sprites, True, pygame.sprite.collide_mask)
     if collision_sprites:
@@ -135,12 +132,8 @@ def display_final_score(final_score):
     text_rect = text_surf.get_frect(center = (window_width / 2, window_height - 500))
     display_surface.blit(text_surf, text_rect)
 
-    # pygame.draw.rect(display_surface, '#e4e7ed', text_rect.inflate(30, 30).move(0, -8), 5, 10)
-
 def game_over_menu():
-    global running
-    global game_state
-    global score
+    global running, game_state
 
     play_text_surf = menu_font.render('Play Again', True, '#e4e7ed')
     play_text_rect = play_text_surf.get_frect(center= (window_width / 2, window_height - 400))
@@ -155,14 +148,28 @@ def game_over_menu():
         if event.type == pygame.MOUSEBUTTONDOWN:
             if play_text_rect.collidepoint(event.pos):
                 # reset everything, start game over
-                score = 0
-                running = True
+                reset_game()
                 game_state = 'playing'
-                game_music.set_volume(0.2)
-                player.rect.center = (window_width / 2, window_height / 2)
             
             if exit_text_rect.collidepoint(event.pos):
                 running = False
+
+def init_game():
+    global all_sprites, meteor_sprites, laser_sprites
+    global player, score
+    
+    score = 0
+    
+    # Sprite Instances
+    all_sprites = pygame.sprite.Group()
+    meteor_sprites = pygame.sprite.Group()
+    laser_sprites = pygame.sprite.Group()
+    for i in range(20):
+        Star(all_sprites, star_surf)
+    player = Player(all_sprites)
+
+def reset_game():
+    init_game()
 
 
 # GENERAL SETUP
@@ -195,7 +202,6 @@ explosion_sound.set_volume(0.2)
 damage_sound = pygame.mixer.Sound(join('audio', 'damage.ogg'))
 damage_sound.set_volume(0.2)
 game_music = pygame.mixer.Sound(join('audio', 'game_music.wav'))
-game_music.set_volume(0.2)
 game_music.play(loops= -1) # play indefinitely
 
 
@@ -228,6 +234,7 @@ while running:
                 Meteor((all_sprites, meteor_sprites), meteor_surf, (x, y))
     
         # Updates
+        game_music.set_volume(0.2)
         all_sprites.update(dt)
         collisions()
     
@@ -235,8 +242,6 @@ while running:
         display_surface.fill('#391142')    
         display_score(score)
         all_sprites.draw(display_surface)
-    
-        # pygame.display.update()
     
     elif game_state == 'game_over':
         # draw score to screen
