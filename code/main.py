@@ -144,7 +144,7 @@ def game_over_menu():
     display_surface.blit(exit_text_surf, exit_text_rect)
     
     # Event Loop
-    for event in pygame.event.get():
+    for event in events:
         if event.type == pygame.MOUSEBUTTONDOWN:
             if play_text_rect.collidepoint(event.pos):
                 # reset everything, start game over
@@ -170,6 +170,14 @@ def init_game():
 
 def reset_game():
     init_game()
+
+def game_sound():
+    global game_state, game_music
+    
+    if game_state == 'playing':
+        game_music.set_volume(0.2)
+    if game_state == 'game_over':
+        game_music.set_volume(0.02)
 
 
 # GENERAL SETUP
@@ -218,15 +226,17 @@ player = Player(all_sprites)
 meteor_event = pygame.event.custom_type()
 pygame.time.set_timer(meteor_event, 500)
 
-
 # GAME FLOW
 while running:
+    events = pygame.event.get()
+    game_sound()
+    
     if game_state == 'playing':
         dt = clock.tick(60) / 1000 # clock.tick() returns in milliseconds [framerate control]
         # print(clock.get_fps()) # check fps
     
         # Event Loop
-        for event in pygame.event.get():
+        for event in events:
             if event.type == pygame.QUIT:
                 running = False
             if event.type == meteor_event:
@@ -234,7 +244,6 @@ while running:
                 Meteor((all_sprites, meteor_sprites), meteor_surf, (x, y))
     
         # Updates
-        game_music.set_volume(0.2)
         all_sprites.update(dt)
         collisions()
     
@@ -251,7 +260,6 @@ while running:
         
         # Draw Game
         display_surface.fill('#391142')
-        game_music.set_volume(0.02)
         display_final_score(score)
         game_over_menu()
         
