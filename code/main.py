@@ -135,14 +135,30 @@ def display_final_score(final_score):
 
 def start_game_menu(events):
     global running, game_state
+    text_color = '#eba038'
+    mouse_pos = pygame.mouse.get_pos()
 
-    play_text_surf = menu_font.render('Play', True, '#e4e7ed')
+    play_text_surf = menu_font.render('Play', True, text_color)
     play_text_rect = play_text_surf.get_frect(center= (window_width / 2, window_height - 400))
-    display_surface.blit(play_text_surf, play_text_rect)
     
-    exit_text_surf = menu_font.render('Exit Game', True, '#e4e7ed')
+    exit_text_surf = menu_font.render('Exit Game', True, text_color)
     exit_text_rect = exit_text_surf.get_frect(center= (window_width / 2, window_height - 300))
+    
+    if play_text_rect.collidepoint(mouse_pos):
+        text_color = '#e4e7ed'
+        play_text_surf = menu_font.render('Play', True, text_color)
+        play_text_surf = pygame.transform.scale_by(play_text_surf, 1.2)
+    if exit_text_rect.collidepoint(mouse_pos):
+        text_color = '#e4e7ed'
+        exit_text_surf = menu_font.render('Exit Game', True, text_color)
+        exit_text_surf = pygame.transform.scale_by(exit_text_surf, 1.2)
+    
+    play_text_rect = play_text_surf.get_frect(center= (window_width / 2, window_height - 400))
+    exit_text_rect = exit_text_surf.get_frect(center= (window_width / 2, window_height - 300))
+    
+    display_surface.blit(play_text_surf, play_text_rect)
     display_surface.blit(exit_text_surf, exit_text_rect)
+    
     
     # Event Loop
     for event in events:
@@ -157,13 +173,28 @@ def start_game_menu(events):
 
 def game_over_menu(events):
     global running, game_state
+    text_color = '#eba038'
+    mouse_pos = pygame.mouse.get_pos()
 
-    play_text_surf = menu_font.render('Play Again', True, '#e4e7ed')
+    play_text_surf = menu_font.render('Play Again', True, text_color)
     play_text_rect = play_text_surf.get_frect(center= (window_width / 2, window_height - 400))
-    display_surface.blit(play_text_surf, play_text_rect)
     
-    exit_text_surf = menu_font.render('Exit Game', True, '#e4e7ed')
+    exit_text_surf = menu_font.render('Exit Game', True, text_color)
     exit_text_rect = exit_text_surf.get_frect(center= (window_width / 2, window_height - 300))
+    
+    if play_text_rect.collidepoint(mouse_pos):
+        text_color = '#e4e7ed'
+        play_text_surf = menu_font.render('Play Again', True, text_color)
+        play_text_surf = pygame.transform.scale_by(play_text_surf, 1.2)
+    if exit_text_rect.collidepoint(mouse_pos):
+        text_color = '#e4e7ed'
+        exit_text_surf = menu_font.render('Exit Game', True, text_color)
+        exit_text_surf = pygame.transform.scale_by(exit_text_surf, 1.2)
+    
+    play_text_rect = play_text_surf.get_frect(center= (window_width / 2, window_height - 400))
+    exit_text_rect = exit_text_surf.get_frect(center= (window_width / 2, window_height - 300))
+    
+    display_surface.blit(play_text_surf, play_text_rect)
     display_surface.blit(exit_text_surf, exit_text_rect)
     
     # Event Loop
@@ -198,7 +229,7 @@ def game_sound(new_state):
     global game_state, game_music
     
     if new_state == 'playing':
-        game_music.set_volume(0.2)
+        game_music.set_volume(0.1)
     if new_state == 'game_over':
         game_music.set_volume(0.02)
     if new_state == 'start_menu':
