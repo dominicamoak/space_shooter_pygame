@@ -108,6 +108,7 @@ def collisions():
     
     collision_sprites = pygame.sprite.spritecollide(player, meteor_sprites, True, pygame.sprite.collide_mask)
     if collision_sprites:
+        damage_sound.play()
         game_state = 'game_over'
     
     for laser in laser_sprites:
@@ -132,7 +133,7 @@ def display_final_score(final_score):
     text_rect = text_surf.get_frect(center = (window_width / 2, window_height - 500))
     display_surface.blit(text_surf, text_rect)
 
-def game_over_menu():
+def game_over_menu(events):
     global running, game_state
 
     play_text_surf = menu_font.render('Play Again', True, '#e4e7ed')
@@ -189,6 +190,7 @@ pygame.display.set_caption('SPACE SHOOTER')
 
 running = True
 game_state = 'playing' # playing, game_over
+previous_state = 'none'
 clock = pygame.time.Clock()
 score = 0
 final_score = 0
@@ -229,7 +231,10 @@ pygame.time.set_timer(meteor_event, 500)
 # GAME FLOW
 while running:
     events = pygame.event.get()
-    game_sound()
+    
+    if game_state != previous_state:
+        game_sound()
+        previous_state = game_state
     
     if game_state == 'playing':
         dt = clock.tick(60) / 1000 # clock.tick() returns in milliseconds [framerate control]
@@ -261,7 +266,7 @@ while running:
         # Draw Game
         display_surface.fill('#391142')
         display_final_score(score)
-        game_over_menu()
+        game_over_menu(events)
         
     pygame.display.update()
 
