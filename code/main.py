@@ -133,6 +133,28 @@ def display_final_score(final_score):
     text_rect = text_surf.get_frect(center = (window_width / 2, window_height - 500))
     display_surface.blit(text_surf, text_rect)
 
+def start_game_menu(events):
+    global running, game_state
+
+    play_text_surf = menu_font.render('Play', True, '#e4e7ed')
+    play_text_rect = play_text_surf.get_frect(center= (window_width / 2, window_height - 400))
+    display_surface.blit(play_text_surf, play_text_rect)
+    
+    exit_text_surf = menu_font.render('Exit Game', True, '#e4e7ed')
+    exit_text_rect = exit_text_surf.get_frect(center= (window_width / 2, window_height - 300))
+    display_surface.blit(exit_text_surf, exit_text_rect)
+    
+    # Event Loop
+    for event in events:
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if play_text_rect.collidepoint(event.pos):
+                # start game
+                init_game()
+                game_state = 'playing'
+            
+            if exit_text_rect.collidepoint(event.pos):
+                running = False
+
 def game_over_menu(events):
     global running, game_state
 
@@ -179,6 +201,8 @@ def game_sound(new_state):
         game_music.set_volume(0.2)
     if new_state == 'game_over':
         game_music.set_volume(0.02)
+    if new_state == 'start_menu':
+        game_music.set_volume(0.02)
 
 
 # GENERAL SETUP
@@ -189,7 +213,7 @@ display_surface = pygame.display.set_mode((window_width, window_height))
 pygame.display.set_caption('SPACE SHOOTER')
 
 running = True
-game_state = 'playing' # playing, game_over
+game_state = 'start_menu' # start_menu, playing, game_over
 previous_state = 'none'
 clock = pygame.time.Clock()
 score = 0
@@ -236,7 +260,11 @@ while running:
         game_sound(game_state)
         previous_state = game_state
     
-    if game_state == 'playing':
+    elif game_state == 'start_menu':
+        display_surface.fill('#391142')
+        start_game_menu(events)
+    
+    elif game_state == 'playing':
         dt = clock.tick(60) / 1000 # clock.tick() returns in milliseconds [framerate control]
         # print(clock.get_fps()) # check fps
     
@@ -267,7 +295,7 @@ while running:
         display_surface.fill('#391142')
         display_final_score(score)
         game_over_menu(events)
-        
+    
     pygame.display.update()
 
 
