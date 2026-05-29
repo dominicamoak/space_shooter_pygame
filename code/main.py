@@ -106,15 +106,18 @@ class Explosions(pygame.sprite.Sprite):
 def collisions():
     global running
     global score
+    global game_state
+    global final_score
     
     collision_sprites = pygame.sprite.spritecollide(player, meteor_sprites, True, pygame.sprite.collide_mask)
     if collision_sprites:
-        running = False
+        game_state = 'game_over'
     
     for laser in laser_sprites:
         collided_sprites = pygame.sprite.spritecollide(laser, meteor_sprites, True, pygame.sprite.collide_mask)
         if collided_sprites:
             score += 10
+            final_score = score
             laser.kill()
             Explosions(all_sprites, explosion_frames, laser.rect.midtop)
             explosion_sound.play()
@@ -127,6 +130,41 @@ def display_score(score):
 
     pygame.draw.rect(display_surface, '#e4e7ed', text_rect.inflate(30, 30).move(0, -8), 5, 10)
 
+def display_final_score(final_score):
+    text_surf = final_score_font.render('Your Score: ' + str(final_score), True, '#e4e7ed')
+    text_rect = text_surf.get_frect(center = (window_width / 2, window_height - 500))
+    display_surface.blit(text_surf, text_rect)
+
+    # pygame.draw.rect(display_surface, '#e4e7ed', text_rect.inflate(30, 30).move(0, -8), 5, 10)
+
+def game_over_menu():
+    global running
+    global game_state
+    global score
+
+    play_text_surf = menu_font.render('Play Again', True, '#e4e7ed')
+    play_text_rect = play_text_surf.get_frect(center= (window_width / 2, window_height - 400))
+    display_surface.blit(play_text_surf, play_text_rect)
+    
+    exit_text_surf = menu_font.render('Exit Game', True, '#e4e7ed')
+    exit_text_rect = exit_text_surf.get_frect(center= (window_width / 2, window_height - 300))
+    display_surface.blit(exit_text_surf, exit_text_rect)
+    
+    # Event Loop
+    for event in pygame.event.get():
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if play_text_rect.collidepoint(event.pos):
+                # reset everything, start game over
+                score = 0
+                running = True
+                game_state = 'playing'
+                game_music.set_volume(0.2)
+                player.rect.center = (window_width / 2, window_height / 2)
+            
+            if exit_text_rect.collidepoint(event.pos):
+                running = False
+
+
 # GENERAL SETUP
 pygame.init()
 
@@ -135,14 +173,18 @@ display_surface = pygame.display.set_mode((window_width, window_height))
 pygame.display.set_caption('SPACE SHOOTER')
 
 running = True
+game_state = 'playing' # playing, game_over
 clock = pygame.time.Clock()
 score = 0
+final_score = 0
 
 # Surface Creations / Imports
 star_surf = pygame.image.load(join('images', 'star.png')).convert_alpha()
 laser_surf = pygame.image.load(join('images', 'laser.png')).convert_alpha()
 meteor_surf = pygame.image.load(join('images', 'meteor.png')).convert_alpha()
 font = pygame.font.Font(join('images', 'Oxanium-Bold.ttf'), 30)
+final_score_font = pygame.font.Font(join('images', 'Oxanium-Bold.ttf'), 40)
+menu_font = pygame.font.Font(join('images', 'Oxanium-Bold.ttf'), 75)
 explosion_frames = [pygame.image.load(join('images', 'explosion', f'{i}.png')).convert_alpha() for i in range(21)]
 
 # Sounds
@@ -173,26 +215,41 @@ pygame.time.set_timer(meteor_event, 500)
 
 # GAME FLOW
 while running:
-    dt = clock.tick(60) / 1000 # clock.tick() returns in milliseconds [framerate control]
-    # print(clock.get_fps()) # check fps
+    if game_state == 'playing':
+        dt = clock.tick(60) / 1000 # clock.tick() returns in milliseconds [framerate control]
+        # print(clock.get_fps()) # check fps
     
-    # Event Loop
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        if event.type == meteor_event:
-            x, y = random.randint(0, window_width), random.randint(-200, -100)
-            Meteor((all_sprites, meteor_sprites), meteor_surf, (x, y))
+        # Event Loop
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            if event.type == meteor_event:
+                x, y = random.randint(0, window_width), random.randint(-200, -100)
+                Meteor((all_sprites, meteor_sprites), meteor_surf, (x, y))
     
-    # Updates
-    all_sprites.update(dt)
-    collisions()
+        # Updates
+        all_sprites.update(dt)
+        collisions()
     
-    # Draw Game
-    display_surface.fill('#391142')    
-    display_score(score)
-    all_sprites.draw(display_surface)
+        # Draw Game
+        display_surface.fill('#391142')    
+        display_score(score)
+        all_sprites.draw(display_surface)
     
+        # pygame.display.update()
+    
+    elif game_state == 'game_over':
+        # draw score to screen
+        # show play again and Exit text to player
+        # when played again, reset everything and game_state = playing
+        # when exit, running = false
+        
+        # Draw Game
+        display_surface.fill('#391142')
+        game_music.set_volume(0.02)
+        display_final_score(score)
+        game_over_menu()
+        
     pygame.display.update()
 
 
